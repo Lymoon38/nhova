@@ -1,0 +1,495 @@
+/* ==========================================
+   NHOVA — interface très simple
+   Gros boutons, peu de texte, tout par la voix
+========================================== */
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    color: #fff;
+    background: radial-gradient(circle at top, #173354, #07111f 55%, #02060d);
+    overflow: hidden;
+
+    /* Pas de sélection de texte ni de menu involontaire */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+}
+
+button {
+    font-family: inherit;
+    touch-action: manipulation;
+}
+
+.app {
+    --c1: #2ee59d;
+    --c2: #14b8a6;
+
+    width: 100%;
+    max-width: 650px;
+    height: 100dvh;
+    margin: auto;
+
+    display: flex;
+    flex-direction: column;
+
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Couleurs selon l'état : repérables sans lire */
+.app[data-state="listening"] { --c1: #ff4d64; --c2: #ff813d; }
+.app[data-state="thinking"]  { --c1: #ffc247; --c2: #ff9f1c; }
+.app[data-state="speaking"]  { --c1: #00d9ff; --c2: #625aff; }
+.app[data-state="error"]     { --c1: #b0b8c4; --c2: #6b7685; }
+
+
+/* ---------- Haut ---------- */
+
+.top {
+    min-height: 56px;
+    padding: 6px 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: .5px;
+}
+
+.adult-button {
+    width: 48px;
+    height: 48px;
+    border: 0;
+    border-radius: 14px;
+    background: rgba(255,255,255,.06);
+    color: #fff;
+    font-size: 20px;
+    opacity: .5;
+}
+
+
+/* ---------- Visage et textes ---------- */
+
+.stage {
+    flex: 1;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 18px;
+    text-align: center;
+}
+
+.face {
+    font-size: min(30vw, 18dvh);
+    line-height: 1;
+    filter: drop-shadow(0 0 30px var(--c1));
+}
+
+.app[data-state="thinking"] .face  { animation: wobble 1.2s ease-in-out infinite; }
+.app[data-state="speaking"] .face  { animation: talk .6s ease-in-out infinite; }
+.app[data-state="listening"] .face { animation: talk 1.4s ease-in-out infinite; }
+
+.status-text {
+    margin: 10px 0 4px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--c1);
+}
+
+.caption {
+    margin: 0;
+    max-height: 5.2em;
+    overflow-y: auto;
+
+    font-size: 17px;
+    line-height: 1.4;
+    color: #aebdd0;
+}
+
+
+/* ---------- Commandes ---------- */
+
+.controls {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+
+    padding: 6px 16px 18px;
+}
+
+.big-button {
+    width: min(68vw, 40dvh);
+    aspect-ratio: 1;
+
+    border: 0;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(135deg, var(--c1), var(--c2));
+    color: #fff;
+
+    box-shadow: 0 0 40px color-mix(in srgb, var(--c1) 55%, transparent);
+
+    font-size: min(24vw, 14dvh);
+    cursor: pointer;
+
+    transition: transform .12s;
+}
+
+.big-button:active {
+    transform: scale(.94);
+}
+
+/* Anneaux qui pulsent pendant l'écoute */
+.app[data-state="listening"] .big-button {
+    animation: rings 1.3s ease-out infinite;
+}
+
+/* Le gros bouton "appelle" quand rien ne se passe */
+.app[data-state="idle"] .big-button {
+    animation: breathe 2.2s ease-in-out infinite;
+}
+
+.replay-button {
+    width: 84px;
+    height: 84px;
+
+    border: 3px solid rgba(255,255,255,.25);
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.08);
+    color: #fff;
+
+    font-size: 36px;
+    cursor: pointer;
+}
+
+.replay-button:active {
+    transform: scale(.92);
+}
+
+
+/* ---------- Animations ---------- */
+
+@keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.05); }
+}
+
+@keyframes rings {
+    0%   { box-shadow: 0 0 0 0 rgba(255,77,100,.65), 0 0 40px rgba(255,77,100,.5); }
+    100% { box-shadow: 0 0 0 38px rgba(255,77,100,0), 0 0 40px rgba(255,77,100,.5); }
+}
+
+@keyframes talk {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-6px) scale(1.06); }
+}
+
+@keyframes wobble {
+    0%, 100% { transform: rotate(-6deg); }
+    50%      { transform: rotate(6deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+}
+
+
+/* ---------- Fenêtre adulte ---------- */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 16px;
+    background: rgba(0,0,0,.8);
+}
+
+.modal.visible {
+    display: flex;
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 440px;
+    max-height: 92dvh;
+    overflow-y: auto;
+
+    padding: 20px;
+    border-radius: 20px;
+
+    background: #101d2f;
+    border: 1px solid rgba(255,255,255,.1);
+
+    -webkit-user-select: auto;
+    user-select: auto;
+}
+
+.modal-content h2 {
+    margin: 0 0 8px;
+    font-size: 20px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+
+    font-size: 15px;
+}
+
+.row strong {
+    color: #37df8a;
+}
+
+.rate {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.opt-button {
+    min-width: 48px;
+    min-height: 48px;
+    padding: 0 14px;
+
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 12px;
+
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.opt-button.wide {
+    width: 100%;
+}
+
+.opt-button.primary {
+    background: linear-gradient(135deg, #00d9ff, #625aff);
+    border: 0;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+
+/* ---------- Écrans larges ---------- */
+
+@media (min-width: 700px) {
+    body { padding: 20px; }
+
+    .app {
+        height: min(900px, 95vh);
+        border-radius: 28px;
+        border: 1px solid rgba(255,255,255,.08);
+        background: rgba(4,12,23,.92);
+        box-shadow: 0 30px 100px rgba(0,0,0,.5);
+    }
+}
+
+
+/* ==========================================
+   BOUTONS DU BAS + JEUX
+========================================== */
+
+[hidden] { display: none !important; }
+
+.small-row {
+    display: flex;
+    gap: 28px;
+}
+
+.city-input {
+    width: 48%;
+    height: 48px;
+    padding: 0 12px;
+
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 12px;
+
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    font-size: 16px;
+}
+
+.game-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+
+    display: none;
+    flex-direction: column;
+
+    max-width: 650px;
+    margin: auto;
+
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+
+    background: radial-gradient(circle at top, #173354, #07111f 55%, #02060d);
+}
+
+.game-overlay.visible { display: flex; }
+
+.game-top,
+.game-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+}
+
+.game-bottom { justify-content: center; gap: 40px; padding-bottom: 18px; }
+
+.round-btn {
+    width: 72px;
+    height: 72px;
+
+    border: 3px solid rgba(255,255,255,.25);
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.1);
+    color: #fff;
+    font-size: 34px;
+    cursor: pointer;
+}
+
+.round-btn:active { transform: scale(.92); }
+
+.round-btn.pulse { animation: breathe 1.2s ease-in-out infinite; border-color: #2ee59d; }
+
+.game-menu {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+}
+
+.menu-card {
+    width: min(70vw, 32dvh);
+    aspect-ratio: 1;
+
+    border: 0;
+    border-radius: 32px;
+
+    background: linear-gradient(135deg, #00d9ff, #625aff);
+    color: #fff;
+    font-size: min(30vw, 14dvh);
+    cursor: pointer;
+
+    box-shadow: 0 0 30px rgba(0,217,255,.3);
+}
+
+.menu-card:nth-child(2) {
+    background: linear-gradient(135deg, #ffb347, #ff5e62);
+    box-shadow: 0 0 30px rgba(255,120,80,.3);
+}
+
+.menu-card:active { transform: scale(.95); }
+
+.board-wrap {
+    flex: 1;
+    min-height: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 8px;
+}
+
+.board {
+    display: grid;
+    gap: 4px;
+}
+
+.tile {
+    border-radius: 8px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    transition: transform .12s;
+}
+
+.tile.right  { box-shadow: inset 0 0 0 3px #2ee59d; }
+.tile.picked { outline: 5px solid #ffc247; outline-offset: -5px; transform: scale(.94); }
+
+.board.won { animation: breathe .8s ease-in-out 3; }
+
+.card {
+    border: 0;
+    border-radius: 14px;
+
+    background: linear-gradient(135deg, #625aff, #00d9ff);
+    color: #fff;
+
+    font-size: clamp(26px, 11vw, 62px);
+    cursor: pointer;
+}
+
+.card.up      { background: #fff; }
+.card.matched { background: #d9f7e8; box-shadow: inset 0 0 0 4px #2ee59d; }
+
+.celebrate {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 40vw;
+    pointer-events: none;
+
+    animation: pop 1s ease-out;
+}
+
+@keyframes pop {
+    0%   { transform: scale(.2); opacity: 0; }
+    50%  { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: .9; }
+}
